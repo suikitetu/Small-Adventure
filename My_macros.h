@@ -1,6 +1,8 @@
 #pragma once
 
+#include <ctime>
 #include "Charac.h"
+#include "Enemy.h"
 
 #ifndef _MY_MACROS_H_
 # define _MY_MACROS_H_
@@ -8,9 +10,9 @@
 # define MY_ERROR 1
 # define MY_SUCCESS 0
 
-# define SAVE_PATH "../assets/save.data"
+# define SAVE_PATH ".save.data"
 
-/* Le format du fichier de sauvegarde est defini comme suit :
+/* Save file is defined as follow :
 	
 	Name\n
 	Level\n
@@ -33,5 +35,10 @@
 // checking.cpp
 int	my_check_nb(std::string str);
 
+// battle.cpp
+void battle(Character *charac);
+
+// Saving.cpp
+int save(Character *charac);
 
 #endif /*_MY_MACROS_H_*/

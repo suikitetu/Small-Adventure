@@ -1,72 +1,153 @@
 #include "My_macros.h"
 
-void	attack(Character *charac, Enemy *opponent)
+std::string	attack(Character *charac, Enemy *opponent)
 {
 	// Here, the player can deliver an attack to the monster
 	std::string	choice;
+	std::string	text = "";
 	int			damages;
+	int			inter = 0;
 
-	std::cout << "How do you wish to attack ?" << std::endl;
-	std::cout << "Fireball : Launch a Fireball. Cost 5 mana, Tremendous damages." << std::endl;
-	std::cout << "Heal : Heal yourself with the Light Magic. Cost 10 mana." << std::endl;
-	std::cout << "Attack : Default choice. Cost 0 mana, deals little damages." << std::endl;
-	getline(std::cin, choice);
 	damages = charac->getMinDmg() + (rand() % (charac->getMaxDmg() - charac->getMinDmg()));
-	if ((choice == "Fireball" || choice == "fireball" || choice == "FIREBALL") && charac->getActMana() >= 5)
+	while (inter == 0)
 	{
-		// We're using a fireball
-		damages = damages * 3;
-		opponent->setActHP(opponent->getActHP() - damages);
-		std::cout << charac->getName() << " throws a Fireball and deals " << damages << " damages !" << std::endl;
-		charac->setActMana(charac->getActMana() - 5);
-		if (charac->getActMana() < 0)
-			charac->setActMana(0);
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && charac->getActMana() >= 5)
+		{
+			// We're using a fireball
+			inter = 1;
+			damages = damages * 3;
+			opponent->setActHP(opponent->getActHP() - damages);
+			text.append(charac->getName());
+			text.append(" throws a Fireball and deals ");
+			text.append(std::to_string(damages));
+			text.append(" damages !\n");
+			charac->setActMana(charac->getActMana() - 5);
+			if (charac->getActMana() < 0)
+				charac->setActMana(0);
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && charac->getActMana() >= 10)
+		{
+			inter = 1;
+			// We're using some healing
+			damages = damages * 2;
+			charac->setActHP(charac->getActHP() + damages);
+			text.append(charac->getName());
+			text.append(" cures his wounds with magic, and recovers ");
+			text.append(std::to_string(damages));
+			text.append(" HP\n");
+			charac->setActMana(charac->getActMana() - 10);
+			if (charac->getActMana() < 0)
+				charac->setActMana(0);
+		}
+		else if ((sf::Keyboard::isKeyPressed(sf::Keyboard::A) && charac->getActMana() < 5) || (sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && charac->getActMana() < 10))
+		{
+			// We're warning the player that he didn't had enough mana
+			text.append("Not enough Mana ! Using default attack instead...\n");
+			inter = -1;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) || inter == -1)
+		{
+			// We're using our Sword
+			inter = 1;
+			opponent->setActHP(opponent->getActHP() - damages);
+			text.append(charac->getName());
+			text.append(" swing out and deals ");
+			text.append(std::to_string(damages));
+			text.append(" damages !\n");
+		}
 	}
-	else if ((choice == "Heal" || choice == "heal" || choice == "HEAL") && charac->getActMana() >= 10)
-	{
-		// We're using some healing
-		damages = damages * 2;
-		charac->setActHP(charac->getActHP() + damages);
-		std::cout << charac->getName() << " cures his wounds with magic, and recovers " << damages << " HP" << std::endl;
-		charac->setActMana(charac->getActMana() - 10);
-		if (charac->getActMana() < 0)
-			charac->setActMana(0);
-	}
-	else
-	{
-		// We're using our Sword
-		opponent->setActHP(opponent->getActHP() - damages);
-		std::cout << charac->getName() << " swing out and deals " << damages << " damages !" << std::endl;
-	}
+	return (text);
 }
 
-void	monster_attack(Character *charac, Enemy *opponent)
+std::string	monster_attack(Character *charac, Enemy *opponent, std::string str)
 {
+	// Here, the monster is attacking us.
 	int	attack_type = rand() % 2;
 	int	damages;
 
 	damages = opponent->getMinDmg() + (rand() % (opponent->getMaxDmg() - opponent->getMinDmg()));
-
+	// He has a probablility to launch a special attack (Not printed for the player)
 	if (attack_type == 1 && opponent->getActMana() > 2)
 		damages = damages * 1.4;
 	charac->setActHP(charac->getActHP() - damages);
-	std::cout << "The " << opponent->getName() << " strikes and deals " << damages << " damages. Ouch !" << std::endl;
+	str.append("The ");
+	str.append(opponent->getName());
+	str.append(" strikes and deals ");
+	str.append(std::to_string(damages));
+	str.append(" damages. Ouch !\n");
+	return (str);
 }
 
-void	battle(Character *charac)
+std::string	fill_text(Character *charac, Enemy *opponent)
 {
-	Enemy	*opponent = new Enemy(charac->getLevel());
+	std::string	text;
+
+	// We're setting up what we'll need to print
+	text = "";
+	text.append("The monster has ");
+	text.append(std::to_string(opponent->getActHP()));
+	text.append("/");
+	text.append(std::to_string(opponent->getMaxHP()));
+	text.append(" HP remaining.\n");
+	text.append(charac->getName());
+	text.append(" has ");
+	text.append(std::to_string(charac->getActHP()));
+	text.append("/");
+	text.append(std::to_string(charac->getMaxHP()));
+	text.append(" HP remaining.\n");
+	text.append(charac->getName());
+	text.append(" has ");
+	text.append(std::to_string(charac->getActMana()));
+	text.append("/");
+	text.append(std::to_string(charac->getMaxMana()));
+	text.append(" Mana remaining.\n");
+	text.append("Press A to launch a Fireball, Z to cast some heal, E to strike with your weapon.");
+	return (text);
+}
+
+void	battle(Character *charac, My_Graph graph_interface, sf::RenderWindow& window)
+{
+	Enemy		*opponent = new Enemy(charac->getLevel());
+	std::string	text;
 
 	// The battle can only finish when someone reach 0 HP.
 	while (opponent->getActHP() > 0 && charac->getActHP() > 0)
 	{
-		std::cout << "The monster has " << opponent->getActHP() << "/" << opponent->getMaxHP() << " HP remaining." << std::endl;
-		std::cout << charac->getName() << " has " << charac->getActHP() << "/" << charac->getMaxHP() << " HP remaining." << std::endl;
-		std::cout << charac->getName() << " has " << charac->getActMana() << "/" << charac->getMaxMana() << " Mana remaining." << std::endl;
-		std::cout << std::endl;
-		attack(charac, opponent);
+		// We're creating the text, and drawing everything
+		text = fill_text(charac, opponent);
+		graph_interface.setText(text);
+		window.clear();
+		window.draw(graph_interface.sprite);
+		window.draw(graph_interface.sprite2);
+		window.draw(graph_interface.sprite3);
+		window.draw(graph_interface.text);
+		window.display();
+		text = attack(charac, opponent);
 		if (opponent->getActHP() > 0)
-			monster_attack(charac, opponent);
+			text = monster_attack(charac, opponent, text);
+		// Here, we're making sure the animations are played correctly
+		graph_interface.setText(text);
+		graph_interface.is_going = 1;
+		while (graph_interface.is_going != 0)
+		{
+			if (graph_interface.is_going == 1 && graph_interface.anim_time < 2000)
+				graph_interface.anim_time = graph_interface.anim_time + 1;
+			else if (graph_interface.is_going == -1 && graph_interface.anim_time > 0)
+				graph_interface.anim_time = graph_interface.anim_time - 1;
+			if (graph_interface.anim_time == 2000)
+				graph_interface.is_going = -1;	
+			else if (graph_interface.anim_time == 0)
+				graph_interface.is_going = 0;
+			window.clear();
+			window.draw(graph_interface.sprite);
+			graph_interface.sprite2.setTextureRect(sf::IntRect(0 - (graph_interface.anim_time / 20), 0, 500, 500));
+			graph_interface.sprite3.setTextureRect(sf::IntRect((graph_interface.anim_time / 20), 0, 500, 500));
+			window.draw(graph_interface.sprite2);
+			window.draw(graph_interface.sprite3);
+			window.draw(graph_interface.text);
+			window.display();
+		}
+		// We're making some Mana Regeneration
 		if (charac->getActMana() < charac->getMaxMana())
 			charac->setActMana(charac->getActMana() + 1);
 	}

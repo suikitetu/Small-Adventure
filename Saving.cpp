@@ -8,6 +8,7 @@ int	save(Character *charac)
 	if (!file)
 	{
 		// Error while creating the file. We're aborting the save, and warning the user.
+		// BE CAREFULL ! This error can happen if you launched the program without Administrator Rights (Creating a file is not allowed)
 		std::cout << "Ow ! Something wrong happened while saving the game :(" << std::endl;
 		return (MY_ERROR);
 	}

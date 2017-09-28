@@ -3,6 +3,7 @@
 #include <ctime>
 #include "Charac.h"
 #include "Enemy.h"
+#include "Graphs.h"
 
 #ifndef _MY_MACROS_H_
 # define _MY_MACROS_H_
@@ -36,7 +37,10 @@
 int	my_check_nb(std::string str);
 
 // battle.cpp
-void battle(Character *charac);
+void		battle(Character *charac, My_Graph graph_interface, sf::RenderWindow& window);
+std::string	attack(Character *charac, Enemy *opponent);
+std::string	monster_attack(Character *charac, Enemy *opponent, std::string str);
+std::string	fill_text(Character *charac, Enemy *opponent);
 
 // Saving.cpp
 int save(Character *charac);

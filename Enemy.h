@@ -1,10 +1,10 @@
 #pragma once
 
-#include <fstream>
-#include <string>
-
 #ifndef _MY_ENEMY_H_
 # define _MY_ENEMY_H_
+
+#include <fstream>
+#include <string>
 
 class Enemy
 {
@@ -13,6 +13,7 @@ public:
 	Enemy(int difficulty);
 	~Enemy();
 
+	// Getters
 	const std::string	getName() const { return(this->name); };
 	const int			getLevel() const { return(this->caracs[0]); }
 	const int			getMaxHP() const { return(this->caracs[1]); }
@@ -22,6 +23,7 @@ public:
 	const int			getMaxDmg() const { return(this->caracs[5]); }
 	const int			getMinDmg() const { return(this->caracs[6]); }
 
+	// Setters
 	void				setName(const std::string s) { this->name = s; };
 	void				setLevel(const int v) { this->caracs[0] = v; };
 	void				setMaxHP(const int v) { this->caracs[1] = v; };
